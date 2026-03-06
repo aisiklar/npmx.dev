@@ -29,11 +29,22 @@ const showModeToggle = computed(() => props.viewMode !== 'table')
 
 const startItem = computed(() => {
   if (props.totalItems === 0) return 0
-  return (currentPage.value - 1) * (pageSize.value as number) + 1
+
+  // delete
+  console.log(
+    '#1 startItem ,(currentPage.value - 1) * (pageSize.value as number) + 1: ',
+    ((currentPage.value - 1) * (pageSize.value as number) + 1).toLocaleString(),
+  )
+  return ((currentPage.value - 1) * (pageSize.value as number) + 1).toLocaleString()
 })
 
 const endItem = computed(() => {
-  return Math.min(currentPage.value * (pageSize.value as number), props.totalItems)
+  // delete
+  console.log(
+    '#1 endItem ,currentPage.value * (pageSize.value as number): ',
+    (currentPage.value * (pageSize.value as number)).toLocaleString(),
+  )
+  return Math.min(currentPage.value * (pageSize.value as number), props.totalItems).toLocaleString()
 })
 
 const canGoPrev = computed(() => currentPage.value > 1)
