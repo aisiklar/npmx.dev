@@ -97,6 +97,11 @@ const visiblePages = computed(() => {
   return pages
 })
 
+// #alptekin delete
+watch(visiblePages, newVal => {
+  console.log('#1 Visible pages:', newVal)
+})
+
 function handlePageSizeChange(event: Event) {
   const target = event.target as HTMLSelectElement
   const value = target.value
