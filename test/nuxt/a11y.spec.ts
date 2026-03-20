@@ -136,6 +136,7 @@ import {
   ButtonBase,
   LinkBase,
   CallToAction,
+  ChartPatternSlot,
   CodeDirectoryListing,
   CodeFileTree,
   CodeMobileTreeDrawer,
@@ -172,6 +173,7 @@ import {
   PackageCompatibility,
   PackageDependencies,
   PackageDeprecatedTree,
+  PackageHeader,
   PackageInstallScripts,
   PackageKeywords,
   PackageList,
@@ -218,6 +220,10 @@ import {
   DiffSkipBlock,
   DiffTable,
   DiffViewerPanel,
+  PackageActionBar,
+  PackageSelectionView,
+  PackageSelectionCheckbox,
+  PackageExternalLinks,
 } from '#components'
 
 // Server variant components must be imported directly to test the server-side render
@@ -671,6 +677,62 @@ describe('component accessibility audits', () => {
     })
   })
 
+  describe('PackageExternalLinks', () => {
+    it('should have no accessibility violations', async () => {
+      const component = await mountSuspended(PackageExternalLinks, {
+        props: {
+          pkg: {
+            '_id': 'react',
+            'name': 'react',
+            'dist-tags': { latest: '18.2.0' },
+            'time': {
+              'created': '2013-01-31T01:07:45.050Z',
+              'modified': '2024-03-14T00:00:00.000Z',
+              '18.2.0': '2024-03-14T00:00:00.000Z',
+            },
+            'requestedVersion': {
+              version: '18.2.0',
+              _npmVersion: '18.2.0',
+              homepage: 'https://react.dev',
+              repository: {
+                type: 'git',
+                url: 'https://github.com/facebook/react.git',
+              },
+              bugs: {
+                url: 'https://github.com/facebook/react/issues',
+              },
+              funding: 'https://github.com/sponsors/facebook',
+              dist: {
+                shasum: 'abc123def456',
+                tarball: 'https://registry.npmjs.org/react/-/react-18.2.0.tgz',
+                signatures: [],
+              },
+              deprecated: undefined,
+              keywords: [],
+              license: 'MIT',
+              name: 'react',
+              time: '2024-03-14T00:00:00.000Z',
+              _id: 'react@18.2.0',
+            },
+            'versions': {
+              '18.2.0': {
+                version: '18.2.0',
+                hasProvenance: false,
+                tags: [],
+              },
+            },
+          },
+          jsrInfo: {
+            exists: true,
+            url: 'https://jsr.io/@react/react',
+          },
+        },
+      })
+      const results = await runAxe(component)
+      expect(results.violations).toEqual([])
+    })
+  })
+
   describe('PackageCard', () => {
     const mockResult = {
       package: {
@@ -720,6 +782,39 @@ describe('component accessibility audits', () => {
     it('should have no accessibility violations', async () => {
       const component = await mountSuspended(PackageLikeCard, {
         props: { packageUrl: 'https://npmx.dev/package/vue' },
+      })
+      const results = await runAxe(component)
+      expect(results.violations).toEqual([])
+    })
+  })
+
+  describe('PackageHeader', () => {
+    it('should have no accessibility violations', async () => {
+      const component = await mountSuspended(PackageHeader, {
+        props: {
+          pkg: {
+            'name': 'vue',
+            'dist-tags': {},
+            'versions': {},
+          },
+          resolvedVersion: '3.5.0',
+          displayVersion: {
+            _id: '1234567890',
+            _npmVersion: '3.5.0',
+            name: 'vue',
+            version: '3.5.0',
+            dist: {
+              shasum: '1234567890',
+              signatures: [],
+              tarball: 'https://npmx.dev/package/vue/tarball',
+            },
+          },
+          latestVersion: { version: '3.5.0', tags: [] },
+          provenanceData: null,
+          provenanceStatus: 'idle',
+          page: 'docs',
+          versionUrlPattern: '/package/vue/v/{version}',
+        },
       })
       const results = await runAxe(component)
       expect(results.violations).toEqual([])
@@ -2055,6 +2150,23 @@ describe('component accessibility audits', () => {
     })
   })
 
+  describe('ChartPatternSlot', () => {
+    it('should have no accessibility violations', async () => {
+      const component = await mountSuspended(ChartPatternSlot, {
+        props: {
+          id: 'perennius',
+          seed: 1,
+          foregroundColor: 'black',
+          fallbackColor: 'transparent',
+          maxSize: 24,
+          minSize: 16,
+        },
+      })
+      const results = await runAxe(component)
+      expect(results.violations).toEqual([])
+    })
+  })
+
   describe('CopyToClipboardButton', () => {
     it('should have no accessibility violations in default state', async () => {
       const component = await mountSuspended(CopyToClipboardButton, {
@@ -2820,7 +2932,7 @@ describe('component accessibility audits', () => {
   describe('UserAvatar', () => {
     it('should have no accessibility violations', async () => {
       const component = await mountSuspended(UserAvatar, {
-        props: { username: 'testuser' },
+        props: { username: 'testuser', size: 'lg' },
       })
       const results = await runAxe(component)
       expect(results.violations).toEqual([])
@@ -2828,7 +2940,7 @@ describe('component accessibility audits', () => {
 
     it('should have no accessibility violations with short username', async () => {
       const component = await mountSuspended(UserAvatar, {
-        props: { username: 'a' },
+        props: { username: 'a', size: 'lg' },
       })
       const results = await runAxe(component)
       expect(results.violations).toEqual([])
@@ -2836,10 +2948,21 @@ describe('component accessibility audits', () => {
 
     it('should have no accessibility violations with long username', async () => {
       const component = await mountSuspended(UserAvatar, {
-        props: { username: 'verylongusernameexample' },
+        props: { username: 'verylongusernameexample', size: 'lg' },
       })
       const results = await runAxe(component)
       expect(results.violations).toEqual([])
+    })
+
+    it('should have no accessibility violations in all sizes', async () => {
+      const sizes = ['xs', 'lg'] as const
+      for (const size of sizes) {
+        const component = await mountSuspended(UserAvatar, {
+          props: { username: 'testuser', size },
+        })
+        const results = await runAxe(component)
+        expect(results.violations).toEqual([])
+      }
     })
   })
 
@@ -3385,6 +3508,9 @@ describe('component accessibility audits', () => {
           groupedDeps: new Map(),
           allChanges: mockAllChanges,
           open: false,
+          packageName: 'nuxt',
+          toVersion: '3.0.0',
+          toVersionUrlPattern: 'https://npmx.dev/package/nuxt/v/3.0.0',
         },
       })
       const results = await runAxe(component)
@@ -3398,6 +3524,9 @@ describe('component accessibility audits', () => {
           groupedDeps: new Map(),
           allChanges: mockAllChanges,
           open: true,
+          packageName: 'nuxt',
+          toVersion: '3.0.0',
+          toVersionUrlPattern: 'https://npmx.dev/package/nuxt/v/3.0.0',
         },
       })
       const results = await runAxe(component)
@@ -3526,6 +3655,59 @@ describe('component accessibility audits', () => {
           },
         },
       })
+      const results = await runAxe(component)
+      expect(results.violations).toEqual([])
+    })
+  })
+
+  describe('PackageActionBar', () => {
+    it('should have no accessibility violations', async () => {
+      const component = await mountSuspended(PackageActionBar)
+      const results = await runAxe(component)
+      expect(results.violations).toEqual([])
+    })
+  })
+
+  describe('PackageSelectionView', () => {
+    it('should have no accessibility violations', async () => {
+      const component = await mountSuspended(PackageSelectionView)
+      const results = await runAxe(component)
+      expect(results.violations).toEqual([])
+    })
+
+    it('should have no accessibility violations changing view mode', async () => {
+      const component = await mountSuspended(PackageSelectionView, {
+        props: {
+          viewMode: 'table',
+        },
+      })
+      const results = await runAxe(component)
+      expect(results.violations).toEqual([])
+    })
+  })
+
+  describe('PackageSelectionCheckbox', () => {
+    it('should have no accessibility violations when disabled', async () => {
+      const component = await mountSuspended(PackageSelectionCheckbox, {
+        props: {
+          packageName: 'nuxt',
+          checked: false,
+          disabled: true,
+        },
+      })
+
+      const results = await runAxe(component)
+      expect(results.violations).toEqual([])
+    })
+
+    it('should have no accessibility violations', async () => {
+      const component = await mountSuspended(PackageSelectionCheckbox, {
+        props: {
+          packageName: 'nuxt',
+          checked: false,
+        },
+      })
+
       const results = await runAxe(component)
       expect(results.violations).toEqual([])
     })
